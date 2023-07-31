@@ -19,7 +19,7 @@ void* New( const void* _type, ... )
    object->type = type;                                /* Let the new object knows its type */
    memcpy( object, &( type->prototype ), type->size ); /* Copy its initial instance values */
    va_start( ap, _type );                              /* Setup the stack to call constructor */
-   object = object->type->constructor( object, &ap );  /* Call the new object's constructor with the arguments passed to New */
+   object = object->type->ctor( object, &ap );         /* Call the new object's constructor with the arguments passed to New */
    va_end( ap );                                       /* Re-adjust the stack */
    return( object );                                   /* Pass back the new, initalized object */
 }
@@ -29,9 +29,21 @@ void* Delete( const void* obj )
    const EmptyObject* o = obj;
    assert( o );
    assert( o->type );
-   assert( o->type->destructor );
+   assert( o->type->dtor );
 
-   return( o->type->destructor( o ) );
+   return( o->type->dtor( o ) );
+}
+
+void* EmptyObjectCtor( const void* self, va_list* app )
+{
+   return( ( void* )( self ) );
+}
+
+void* EmptyObjectDtor( const void* self )
+{
+   assert( self != NULL );
+   free( ( void* )( self ) );
+   return( NULL );
 }
 
 const Class EmptyObject$ =
@@ -41,20 +53,9 @@ const Class EmptyObject$ =
 
    .prototype.type = ( Class* )( &EmptyObject$ ),
    .parent = NULL,
-   .constructor = EmptyObjectConstructor,
-   .destructor = EmptyObjectDestructor,
+   .ctor = EmptyObjectCtor,
+   .dtor = EmptyObjectDtor,
 };
 
-void* EmptyObjectConstructor( const void* self, va_list* app )
-{
-   return( ( void* )( self ) );
-}
-
-void* EmptyObjectDestructor( const void* self )
-{
-   assert( self != NULL );
-   free( ( void* )( self ) );
-   return( NULL );
-}
 
 /*************************/

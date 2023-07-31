@@ -23,7 +23,7 @@ typedef struct Object_t
    char* ( *toString )( const void* self );
 } Object;
 
-void* Object__Constructor( const void* self, va_list* app )
+void* Object__ctor( const void* self, va_list* app )
 {
    int x = va_arg( *app, int );
    Object* o = ( Object* )( self );
@@ -32,11 +32,12 @@ void* Object__Constructor( const void* self, va_list* app )
    return( ( void* )( self ) );
 }
 
-void* Object__Destructor( const void* self )
+void* Object__dtor( const void* self )
 {
    Object* o = ( Object* )( self );
    assert( o );
-   o->type->parent->destructor( self );
+//   o->type->parent->dtor( self );
+   o->type->dtor( self );
    return( NULL );
 }
 
@@ -49,8 +50,9 @@ typedef struct Object$_t
 {
    /* Inheritance */
    const struct Class* parent;
-   void* ( *constructor )( const void* self, va_list* app );
-   void* ( *destructor )( const void* self );
+   /* Extension */
+   void* ( *ctor )( const void* self, va_list* app );
+   void* ( *dtor )( const void* self );
    char* name;
    unsigned int size;
    Object prototype;
@@ -71,8 +73,8 @@ const struct Object$_t Object$ =
 
    .prototype.type = ( Class* )( &Object$ ),
    .parent = ( Class* )( &EmptyObject$ ),
-   .constructor = Object__Constructor,
-   .destructor = Object__Destructor,
+   .ctor = Object__ctor,
+   .dtor = Object__dtor,
    .prototype.value = 0,
    .prototype.toString = Object__toString,
    .ver = 1,

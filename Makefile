@@ -2,7 +2,8 @@
 # All rights reserved.
 # See LICENSE for licensing details.
 
-SHELL:=/bin/bash
+#SHELL := /bin/bash
+SHELL := /opt/homebrew/bin/bash
 
 DESTDIR ?= /usr/local
 
@@ -16,7 +17,8 @@ ARCH ?= $(shell uname -m)
 
 ######################################################################
 
-CFLAGS ?= -Os -Wall -std=c99 -pedantic
+#CFLAGS ?= -Os -Wall -std=gnu99 -pedantic -Wno-dollar-in-identifier-extension
+CFLAGS ?= -Os -Wall -std=gnu11 -pedantic -Wno-dollar-in-identifier-extension -fms-extensions
 LDFLAGS ?=
 
 DDIR = docs
@@ -57,7 +59,7 @@ t/%.exe: t/%.o $(LIB) Makefile
 all: $(LIB)
 
 $(LIB): $(LOBJ)
-	$(AR) -rcs $@ $^
+	$(AR) -rs $@ $^
 
 $(EXE): $(OBJ)
 	$(LD) $^ $(LDFLAGS) -o $(EDIR)/$@
@@ -108,4 +110,5 @@ p-%:
 .PHONY: p-*
 
 help: ## This help target
-	@RE='^[a-zA-Z0-9 ._+-]*:[a-zA-Z0-9 ._+-]*##' ; while read line ; do [[ "$$line" =~ $$RE ]] && echo "$$line" ; done <$(MAKEFILE_LIST) ; RE=''
+	echo $(SHELL) - $(MAKEFILE_LIST)
+	@RE='^[a-zA-Z0-9 ._+-]*:[a-zA-Z0-9 ._+-]*##' ; while read line ; do [[ "$$line" =~ $$RE ]] && echo "$$line" ; done <Makefile ; RE=''
